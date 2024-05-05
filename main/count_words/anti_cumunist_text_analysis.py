@@ -4,15 +4,15 @@ from PyPDF2 import PdfReader
 from collections import Counter
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
-import networkx as nx
+
 
 
 from words.key_words import communism_key_words as key_words
 from words.negative_words import negative_words as negative_words
-from words.connectors_articles import  connectors_articles as connectors_articles
+from words.connectors_articles import connectors_articles as connectors_articles
 
 
-path_file = "../../resourses/mensaje2.txt"
+path_file = "../../resourses/prueba.txt"
 
 connectors_articles_set = connectors_articles
 key_words_set = key_words
@@ -117,7 +117,7 @@ def show_count_per_key_words(words):
 def show_count_per_negative_words(words):
     word_count = {}
     # Muestra la cantidad que existe de palabras negativas
-    for word in words :
+    for word in words:
         if word in word_count:
             word_count[word] += 1
         else:
@@ -126,6 +126,7 @@ def show_count_per_negative_words(words):
     for word, count in word_count.items():
         if word in negative_words_set:
             print(f"{word}: {count}")
+
 def show_word_frequency(words):
     word_freq = Counter(words)
     total_words = count_words(words)[0]
@@ -137,6 +138,7 @@ def show_word_frequency(words):
         else:
             freq_percentage = (freq / total_words) * 100
             print(f"{word}, Frecuencia: {freq_percentage:.2f}%, Se repite cada {100/freq_percentage:.2f} palabras")
+
 def calculate_score(text, key_words, negative_words):
     score = 0
     words = text
@@ -152,16 +154,16 @@ def calculate_score(text, key_words, negative_words):
             individual_score = 0
             contributing_words = []
 
-            # Buscar hasta 3 palabras hacia atrás
-            for j in range(i - 1, max(-1, i - 3), -1):
+            # Buscar hasta 2 palabras hacia atrás
+            for j in range(i - 1, max(-1, i - 2), -1):
                 if words[j] in negative_words:
                     negative_word = words[j]
                     individual_score += key_words[word] * negative_words[negative_word]
                     contributing_words.append(negative_word)
                     contributing_scores[negative_word] = key_words[word] * negative_words[negative_word]
 
-            # Buscar hasta 3 palabras hacia adelante
-            for k in range(i + 1, min(len(words), i + 4)):
+            # Buscar hasta 2 palabras hacia adelante
+            for k in range(i + 1, min(len(words), i + 3)):
                 if words[k] in negative_words:
                     negative_word = words[k]
                     individual_score += key_words[word] * negative_words[negative_word]
@@ -181,6 +183,8 @@ def calculate_score(text, key_words, negative_words):
     return score
 
 def all_word_cloud_graph(words):
+    if not words:
+        return
     wordcloud = WordCloud(width=800, height=400, background_color="white").generate_from_frequencies(words)
     # Mostrar la nube de todas las palabras
     plt.figure(figsize=(10, 5))
@@ -193,7 +197,8 @@ def key_word_cloud_graph(words):
     for i in words:
         if i in key_words_set:
             key_words[i] = key_words.get(i, 0) + 1
-
+    if not key_words:
+        return
     wordcloud2 = WordCloud(width=800, height=400, background_color="white").generate_from_frequencies(key_words)
 
     # Mostrar la nube de las palabras clave
@@ -203,11 +208,13 @@ def key_word_cloud_graph(words):
     plt.show()
 
 def negative_word_cloud_graph(words):
+
     negative_words = {}
     for i in words:
         if i in negative_words_set:
             negative_words[i] = negative_words.get(i, 0) + 1
-
+    if not negative_words:
+        return
     wordcloud3 = WordCloud(width=800, height=400, background_color="white").generate_from_frequencies(negative_words)
 
     # Mostrar la nube de las palabras negativas
@@ -217,6 +224,8 @@ def negative_word_cloud_graph(words):
     plt.show()
 
 def word_bar_chart(words):
+    if not words:
+        return
     sorted_words = sorted(words.items(), key=lambda x: x[1], reverse=True)
 
     # Tomar las 20 primeras palabras con los valores más altos
@@ -239,7 +248,8 @@ def key_word_bar_chart(words):
     for word, value in words.items():
         if word in key_words_set:
             key_words[word] = value
-
+    if not key_words:
+        return
     sorted_key_words = sorted(key_words.items(), key=lambda x: x[1], reverse=True)
 
     # Tomar las 20 primeras palabras clave con los valores más altos
@@ -262,6 +272,8 @@ def negative_word_bar_chart(words):
     for word, value in words.items():
         if word in negative_words_set:
             negative_words[word] = value
+    if not negative_words:
+        return
 
     sorted_negative_words = sorted(negative_words.items(), key=lambda x: x[1], reverse=True)
 
@@ -279,7 +291,10 @@ def negative_word_bar_chart(words):
     plt.xticks(rotation=45, ha='right')  # Rotar las etiquetas del eje x para mayor legibilidad
     plt.tight_layout()
     plt.show()
+
 def classify_anticommunism(score, count):
+    if score == 0:
+        return "No anticomunista"
     scale = count / score
     if scale <= 5:
         return "Muy anticomunista"
@@ -293,6 +308,7 @@ def classify_anticommunism(score, count):
         return "Muy poco anticomunista"
     else:
         return "No anticomunista"
+
 
 def run():
 
@@ -327,12 +343,12 @@ def run():
     print("Clasificación del texto")
     print(classify_anticommunism(score, total_words))
 
-    # all_word_cloud_graph(count)
-    # key_word_cloud_graph(count)
-    # negative_word_cloud_graph(count)
-    # word_bar_chart(count)
-    # key_word_bar_chart(count)
-    # negative_word_bar_chart(count)
+    all_word_cloud_graph(count)
+    key_word_cloud_graph(count)
+    negative_word_cloud_graph(count)
+    word_bar_chart(count)
+    key_word_bar_chart(count)
+    negative_word_bar_chart(count)
 
 
 
