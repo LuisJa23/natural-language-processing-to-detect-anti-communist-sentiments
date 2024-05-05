@@ -12,7 +12,7 @@ from words.negative_words import negative_words as negative_words
 from words.connectors_articles import connectors_articles as connectors_articles
 
 
-path_file = "../../resourses/prueba.txt"
+path_file = "../../resourses/mensaje2.txt"
 
 connectors_articles_set = connectors_articles
 key_words_set = key_words
@@ -99,7 +99,6 @@ def show_count_per_word(words):
     for word, count in word_count.items():
         print(f"{word}: {count}")
     return word_count
-
 
 def show_count_per_key_words(words):
     word_count = {}
