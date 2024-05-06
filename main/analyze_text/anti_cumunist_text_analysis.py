@@ -4,6 +4,7 @@ from PyPDF2 import PdfReader
 from collections import Counter
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import networkx as nx
 
 
 
@@ -17,6 +18,7 @@ path_file = "../../resourses/mensaje2.txt"
 connectors_articles_set = connectors_articles
 key_words_set = key_words
 negative_words_set = negative_words
+
 
 def determine_document_type(path_file):
     try:
@@ -143,43 +145,67 @@ def calculate_score(text, key_words, negative_words):
     words = text
 
     # Diccionarios para almacenar los puntajes de las palabras clave y las palabras que contribuyen
+    dictionary_words = {}
     key_word_scores = {}
     contributing_scores = {}
+    contributing_words = {}
+
 
     for i in range(len(words)):
         word = words[i]
-        # Por cada palabra clave se hace una búsqueda de palabras negativas cercanas
         if word in key_words:
-            individual_score = 0
-            contributing_words = []
+
+            if word in dictionary_words:
+                contributing_words = dictionary_words[word]
+            else:
+                contributing_words = {}
+
+            dictionary_words[word] = contributing_words
+
 
             # Buscar hasta 2 palabras hacia atrás
-            for j in range(i - 1, max(-1, i - 2), -1):
+            for j in range(i - 1, max(-1, i - 3), -1):
+
                 if words[j] in negative_words:
+                    count_negative_word = 0
                     negative_word = words[j]
-                    individual_score += key_words[word] * negative_words[negative_word]
-                    contributing_words.append(negative_word)
-                    contributing_scores[negative_word] = key_words[word] * negative_words[negative_word]
+
+                    if negative_word in contributing_words:
+                        count_negative_word = contributing_words[negative_word]
+                        count_negative_word += 1
+                    else:
+                        count_negative_word = 1
+
+                    contributing_words[negative_word] = count_negative_word
+
+
 
             # Buscar hasta 2 palabras hacia adelante
             for k in range(i + 1, min(len(words), i + 3)):
                 if words[k] in negative_words:
+                    count_negative_word = 0
                     negative_word = words[k]
-                    individual_score += key_words[word] * negative_words[negative_word]
-                    contributing_words.append(negative_word)
-                    contributing_scores[negative_word] = key_words[word] * negative_words[negative_word]
+                    if negative_word in contributing_words:
+                        count_negative_word = contributing_words[negative_word]
+                        count_negative_word += 1
+                    else:
+                        count_negative_word = 1
+                    contributing_words[negative_word] = count_negative_word
 
-            # Muestra el puntaje de cada palabra clave y palabra negativa y hace el cálculo del score
-            if individual_score != 0:
-                score += individual_score
-                key_word_scores[word] = key_words[word]
-                print(f"Palabra clave: {word} (puntaje {key_words[word]}), Puntaje total: {individual_score}. Palabras que contribuyen: ", end= " ")
-                for word in contributing_words:
-                    print(f"{word} (puntaje {negative_words_set[word]})", end=" ")
-                print()
+
+            dictionary_words[word] = contributing_words
+
+    for word in dictionary_words:
+        for negative_word in dictionary_words[word]:
+            score += key_words[word] * negative_words[negative_word] * dictionary_words[word][negative_word]
 
     print("Puntaje global:", score)
-    return score
+    for word, score in key_word_scores.items():
+        print(f"Palabra clave: {word} (puntaje {score}), Palabras que contribuyen: ", end= " ")
+        for word, score in contributing_scores.items():
+            print(f"{word} (puntaje {score})", end=" ")
+        print()
+    return score, dictionary_words
 
 def all_word_cloud_graph(words):
     if not words:
@@ -291,6 +317,39 @@ def negative_word_bar_chart(words):
     plt.tight_layout()
     plt.show()
 
+def plot_word_connections(dictionary_words):
+    G = nx.Graph()
+    for word in dictionary_words:
+
+        for negative_word in dictionary_words[word]:
+            negative_score = negative_words_set[negative_word]
+
+            G.add_edge(word, negative_word, weight=negative_score)
+
+    pos = nx.spring_layout(G)  # Positions of the nodes in the graph
+    labels = nx.get_edge_attributes(G, 'weight')  # Labels of the edge weights
+    nx.draw(G, pos, with_labels=True, node_size=2000, node_color="skyblue", font_size=10)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+    plt.title("Conexiones de palabras")
+    plt.show()
+
+
+def plot_word_connections_value(dictionary_words):
+
+    G = nx.Graph()
+    for word in dictionary_words:
+
+        for negative_word in dictionary_words[word]:
+            negative_score = negative_words_set[negative_word] * key_words_set[word] * dictionary_words[word][negative_word]
+            G.add_edge(word, negative_word, weight=negative_score)
+
+    pos = nx.spring_layout(G)  # Positions of the nodes in the graph
+    labels = nx.get_edge_attributes(G, 'weight')  # Labels of the edge weights
+    nx.draw(G, pos, with_labels=True, node_size=2000, node_color="skyblue", font_size=10)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
+    plt.title("Conexiones de palabras")
+    plt.show()
+
 def classify_anticommunism(score, count):
     if score == 0:
         return "No anticomunista"
@@ -336,18 +395,21 @@ def run():
 
     print()
     print("Score del texto")
-    score = calculate_score(text, key_words_set, negative_words_set)
+    score, dictionary_word = calculate_score(text, key_words_set, negative_words_set)
+
 
     print()
     print("Clasificación del texto")
     print(classify_anticommunism(score, total_words))
 
-    all_word_cloud_graph(count)
-    key_word_cloud_graph(count)
-    negative_word_cloud_graph(count)
-    word_bar_chart(count)
-    key_word_bar_chart(count)
-    negative_word_bar_chart(count)
+    # all_word_cloud_graph(count)
+    # key_word_cloud_graph(count)
+    # negative_word_cloud_graph(count)
+    # word_bar_chart(count)
+    # key_word_bar_chart(count)
+    # negative_word_bar_chart(count)
+    plot_word_connections(dictionary_word)
+    plot_word_connections_value(dictionary_word)
 
 
 
