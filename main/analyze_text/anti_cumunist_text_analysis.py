@@ -13,7 +13,7 @@ from words.negative_words import negative_words as negative_words
 from words.connectors_articles import connectors_articles as connectors_articles
 
 
-path_file = "../../resourses/mensaje2.txt"
+path_file = "../../resourses/mensaje1.txt"
 
 connectors_articles_set = connectors_articles
 key_words_set = key_words
@@ -326,8 +326,8 @@ def plot_word_connections(dictionary_words):
 
             G.add_edge(word, negative_word, weight=negative_score)
 
-    pos = nx.spring_layout(G)  # Positions of the nodes in the graph
-    labels = nx.get_edge_attributes(G, 'weight')  # Labels of the edge weights
+    pos = nx.spring_layout(G)
+    labels = nx.get_edge_attributes(G, 'weight')
     nx.draw(G, pos, with_labels=True, node_size=2000, node_color="skyblue", font_size=10)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
     plt.title("Conexiones de palabras")
@@ -343,8 +343,8 @@ def plot_word_connections_value(dictionary_words):
             negative_score = negative_words_set[negative_word] * key_words_set[word] * dictionary_words[word][negative_word]
             G.add_edge(word, negative_word, weight=negative_score)
 
-    pos = nx.spring_layout(G)  # Positions of the nodes in the graph
-    labels = nx.get_edge_attributes(G, 'weight')  # Labels of the edge weights
+    pos = nx.spring_layout(G)
+    labels = nx.get_edge_attributes(G, 'weight')
     nx.draw(G, pos, with_labels=True, node_size=2000, node_color="skyblue", font_size=10)
     nx.draw_networkx_edge_labels(G, pos, edge_labels=labels)
     plt.title("Conexiones de palabras")
@@ -402,12 +402,12 @@ def run():
     print("Clasificación del texto")
     print(classify_anticommunism(score, total_words))
 
-    # all_word_cloud_graph(count)
-    # key_word_cloud_graph(count)
-    # negative_word_cloud_graph(count)
-    # word_bar_chart(count)
-    # key_word_bar_chart(count)
-    # negative_word_bar_chart(count)
+    all_word_cloud_graph(count)
+    key_word_cloud_graph(count)
+    negative_word_cloud_graph(count)
+    word_bar_chart(count)
+    key_word_bar_chart(count)
+    negative_word_bar_chart(count)
     plot_word_connections(dictionary_word)
     plot_word_connections_value(dictionary_word)
 
