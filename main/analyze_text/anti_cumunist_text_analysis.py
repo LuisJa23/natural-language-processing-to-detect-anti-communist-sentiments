@@ -13,7 +13,7 @@ from words.negative_words import negative_words as negative_words
 from words.connectors_articles import connectors_articles as connectors_articles
 
 
-path_file = "../../resourses/mensaje1.txt"
+path_file = "../../resourses/prueba.txt"
 
 connectors_articles_set = connectors_articles
 key_words_set = key_words
@@ -410,10 +410,6 @@ def run():
     negative_word_bar_chart(count)
     plot_word_connections(dictionary_word)
     plot_word_connections_value(dictionary_word)
-
-
-
-
 
 run()
 

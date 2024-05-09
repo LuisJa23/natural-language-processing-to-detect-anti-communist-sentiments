@@ -1,24 +1,24 @@
+Anti-Communist Sentiment Analyzer
+This tool is designed to analyze sentiments in texts with an anti-communist focus. It allows users to assess the sentiment expressed in documents related to anti-communism and generate visualizations and statistics based on the analyzed content.
 
-Contador de Palabras en Python
+Installation
+To use this tool, ensure you have Python version 3.12 installed, along with the following libraries:
 
-Este es un programa que cuenta las palabras en un archivo de texto (.txt).
-El programa normaliza el texto, convirtiendo todas las letras a minúsculas y eliminando caracteres especiales, y luego cuenta el número total de palabras, incluyendo números decimales y palabras con guiones.
+docx
+re
+PyPDF2
+collections
+wordcloud
+matplotlib
+networkx
+You can install these libraries by executing the following command in your terminal:
 
-## Requisitos
+Copy code
+pip install python-docx PyPDF2 wordcloud matplotlib networkx
+Usage
+Once the dependencies are installed, simply run the main script sentiment_analysis.py providing the file you want to analyze as an argument. For example:
 
-- Python 3.12.0
-
-1. Coloca tus archivos de texto en la carpeta del proyecto resources.
+python anti_comunist_text_analysis.py
 
 
-2. Reemplazar la ruta del archivo en count_words.py:
-
-    input_file_path = '../../resourses/texto.txt'
-    file_path = '../../resourses/texto.txt'
-
-    Reemplaza `texto.txt` con el nombre de tu archivo de texto.
-
-## Limitaciones
-
-- El programa actualmente solo es compatible con archivos de texto (.txt).
-
+This will generate visualizations and statistics based on the sentiment expressed in the provided document.
